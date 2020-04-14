@@ -1,5 +1,5 @@
-import openpyxl
 import pandas
+import openpyxl
 
 def _or_in_(alist,astring):
 	#function to determine if any words in a list (alist)
