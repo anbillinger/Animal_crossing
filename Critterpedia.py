@@ -2,7 +2,7 @@ import pandas
 import datetime
 from datetime import time
 import math
-now=datetime.datetime.now()
+
 allmonths=["January","February","March","April","May","June","July","August","September","October","November","December"]
 
 def monthscheck(txtstring):
@@ -45,171 +45,176 @@ def _or_in_(alist,astring):
 			return True
 	return False
 			
+def critterpedia():
+        now=datetime.datetime.now()
+        fishcheck=False
+        bugcheck=False
+        while not (fishcheck or bugcheck):
+                print ("Fish, Insects, or Both? ")
+                which=input()
+                if _or_in_(['fish','both'],which.lower()):fishcheck=True
+                if _or_in_(['insect','bug','but','both'],which.lower()):bugcheck=True
 
-fishcheck=False
-bugcheck=False
-while not (fishcheck or bugcheck):
-	print ("Fish, Insects, or Both? ")
-	which=input()
-	if _or_in_(['fish','both'],which.lower()):fishcheck=True
-	if _or_in_(['insect','bug','but','both'],which.lower()):bugcheck=True
+        incdonated=False
+        whilecheck=True
+        while whilecheck:
+                print ("Show already donated critters? ")
+                donatecheck=input()
+                if 'y' in donatecheck.lower():
+                        incdonated=True
+                        whilecheck=False
+                elif 'n' in donatecheck.lower():
+                        whilecheck=False
+                
+        monthcheck=''
+        neworend=""
+        while monthcheck not in allmonths:
+                print ("What month? Specify new or ending critters?" )
+                monthcheck=input()
+                if "end" in monthcheck.lower():
+                        neworend="end"
+                elif "new" in monthcheck.lower():
+                        neworend="new"
+                for months in allmonths:
+                        if months.lower() in monthcheck.lower():
+                                monthcheck=months
+                
 
-incdonated=False
-whilecheck=True
-while whilecheck:
-	print ("Show already donated critters? ")
-	donatecheck=input()
-	if 'y' in donatecheck.lower():
-		incdonated=True
-		whilecheck=False
-	elif 'n' in donatecheck.lower():
-		whilecheck=False
-	
-monthcheck=''
-neworend=""
-while monthcheck not in allmonths:
-	print ("What month? Specify new or ending critters?" )
-	monthcheck=input()
-	if "end" in monthcheck.lower():
-		neworend="end"
-	elif "new" in monthcheck.lower():
-		neworend="new"
-	for months in allmonths:
-		if months.lower() in monthcheck.lower():
-			monthcheck=months
-	
+        whilecheck2=True
+        while whilecheck2:
+                print ("Available now or any time of day? ")
+                timein=input()
+                if ("any" or "all") in timein.lower():
+                        whilecheck2=False
+                        checktime=False
+                if ("now" or "this") in timein.lower():
+                        checktime=True
+                        whilecheck2=False
+                        
+        loccheck=False
+        sizecheck=False
+        valcheck=False
+        if incdonated:
+                print ("Any further restrictions? Please list all now")
+                ffinput=input()
+                if "value" in ffinput.lower():
+                        valcheck=True
+                        print ("What's the cutoff?")
+                        minval=int(input())
+                if "location" in ffinput.lower():
+                        loccheck=True
+                        print ("What location? Enter river, sea, pond, or pier, or it will return an empty list")
+                        loca=input()
+                if "size" in ffinput.lower():
+                        sizecheck=True
+                        print ("What size? Enter smallest, small, medium, large, x large, or largest, or it will return an empty list")
+                        sizein=input()
+                                
+                        
+                
+                
+        if bugcheck:
+                insects_xl=pandas.read_excel('insectlist.xlsx')
+                insects=insects_xl.to_dict('records')
+                print ("\n")
+                titles=["Name","How to catch","Time"]
+                for insect in insects:
+                        if "Year" in insect['Months']: insect['Simple Months']=allmonths
+                        else: 
+                                if "," in insect['Months']:
+                                        txtstrings=insect['Months'].split(", ")
+                                        txtstring1=txtstrings[0].split(" ")[0]
+                                        txtstring2=txtstrings[1].split(" ")[0]
+                                        insect['Simple Months']=monthscheck(txtstring1)+monthscheck(txtstring2)
+                                else:
+                                        txtstring=insect['Months'].split(" ")[0]
+                                        insect['Simple Months']=monthscheck(txtstring)
+                shortlisti=list(filter(lambda x:(monthcheck in x['Simple Months']),insects))
+                if not incdonated:
+                        shortlisti=list(filter(lambda x:(x["Donated"]!="Yes"),shortlisti))
+                if neworend=="end":
+                        indcheck=allmonths.index(monthcheck)
+                        shortlisti=list(filter(lambda x:(allmonths[indcheck+1] not in x['Simple Months']),shortlisti))
+                if neworend=="new":
+                        indcheck=allmonths.index(monthcheck)
+                        shortlisti=list(filter(lambda x:(allmonths[indcheck-1] not in x['Simple Months']),shortlisti))
+                if checktime:
+                        shortlisti=list(filter(lambda x:(timecheck(x["Time"])),shortlisti))
+                if valcheck:
+                        shortlisti=list(filter(lambda x:(not math.isnan(x['Value'])),shortlisti))
+                        shortlisti=list(filter(lambda x:(x['Value']>=minval),shortlisti))
+                print ("Insects:")
+                if shortlisti==[]:print ("None")
+                else:
+                        maxn=max(list(map(lambda x:(len(x["Name"])),shortlisti)))
+                        listh=list(map(lambda x:(len(x['How to catch'])),shortlisti))
+                        listh.append(12)
+                        maxh=max(listh)
+                        maxt=max(list(map(lambda x:(len(x["Time"])),shortlisti)))
+                        print ("Name"+" "*(maxn-4)+"\t"+'How to catch'+" "*(maxh-12)+"\t"+'Time'+" "*(maxt-4)+"\t\t"+"Value")
+                        for insect in shortlisti:
+                                insect['Name']=insect['Name']+" "*(maxn-len(insect['Name']))
+                                insect['How to catch']=insect['How to catch']+" "*(maxh-len(insect['How to catch']))
+                                insect['Time']=insect['Time']+" "*(maxt-len(insect['Time']))
+                                if not math.isnan(insect['Value']):
+                                        insect['Value']=math.trunc(insect['Value'])
+                                print (insect['Name']+"\t"+insect['How to catch']+"\t"+insect['Time']+"\t\t"+str(insect['Value']))
+                
+        if fishcheck:	
+                fishes_xl=pandas.read_excel('Fishlist.xlsx')
+                fishes=fishes_xl.to_dict('records')
+                print ("\n")
+                for fish in fishes:
+                        if "Year" in fish['Months']: fish['Simple Months']=allmonths
+                        else: 
+                                if "," in fish['Months']:
+                                        txtstrings=fish['Months'].split(", ")
+                                        txtstring1=txtstrings[0].split(" ")[0]
+                                        txtstring2=txtstrings[1].split(" ")[0]
+                                        fish['Simple Months']=monthscheck(txtstring1)+monthscheck(txtstring2)
+                                else:
+                                        txtstring=fish['Months'].split(" ")[0]
+                                        fish['Simple Months']=monthscheck(txtstring)
+                                
+                print ('Fish:')
+                shortlistf=list(filter(lambda x:(monthcheck in x['Simple Months']),fishes))
+                if not incdonated:
+                        shortlistf=list(filter(lambda x:(x["Donated"]!="Yes"),shortlistf))
+                if neworend=="end":
+                        indcheck=allmonths.index(monthcheck)
+                        shortlistf=list(filter(lambda x:(allmonths[indcheck+1] not in x['Simple Months']),shortlistf))
+                if neworend=="new":
+                        indcheck=allmonths.index(monthcheck)
+                        shortlistf=list(filter(lambda x:(allmonths[indcheck-1] not in x['Simple Months']),shortlistf))
+                if checktime:
+                        shortlistf=list(filter(lambda x:(timecheck(x["Time"])),shortlistf))
+                if valcheck:
+                        shortlistf=list(filter(lambda x:(not math.isnan(x['Value'])),shortlistf))
+                        shortlistf=list(filter(lambda x:(x['Value']>=minval),shortlistf))
+                if loccheck:
+                        if "sea" in loca.lower():
+                                shortlistf=list(filter(lambda x:(_or_in_(["sea","pier"],x['Location'].lower())),shortlistf))
+                        else:shortlistf=list(filter(lambda x:(loca.lower() in x['Location'].lower()),shortlistf))
+                if sizecheck:
+                        if "largest" in sizein.lower():
+                                shortlistf=list(filter(lambda x:(sizein.lower() in x['Size'].lower()),shortlistf))
+                        else: shortlistf=list(filter(lambda x:(sizein.lower()==x['Size'].lower()),shortlistf))
+                if shortlistf==[]:print ("None")
+                else:
+                        maxn=max(list(map(lambda x:(len(x["Name"])),shortlistf)))
+                        listl=list(map(lambda x:(len(x['Location'])),shortlistf))
+                        listl.append(8)
+                        maxl=max(listl)
+                        maxs=max(list(map(lambda x:(len(x["Size"])),shortlistf)))
+                        maxt=max(list(map(lambda x:(len(x["Time"])),shortlistf)))
+                        print ("Name"+" "*(maxn-4)+"\t"+'Location'+" "*(maxl-8)+"\t"+"Size"+" "*(maxs-4)+"\t"+'Time'+" "*(maxt-4)+"\t"+"Value")
+                        for fish in shortlistf:
+                                fish['Name']=fish['Name']+" "*(maxn-len(fish['Name']))
+                                fish['Location']=fish['Location']+" "*(maxl-len(fish['Location']))
+                                fish['Size']=fish['Size']+" "*(maxs-len(fish['Size']))
+                                fish['Time']=fish['Time']+" "*(maxt-len(fish['Time']))
+                                print (fish['Name']+"\t"+fish['Location']+"\t"+fish['Size']+"\t"+fish['Time']+"\t"+str(fish['Value']))
 
-whilecheck2=True
-while whilecheck2:
-	print ("Available now or any time of day? ")
-	timein=input()
-	if ("any" or "all") in timein.lower():
-		whilecheck2=False
-		checktime=False
-	if ("now" or "this") in timein.lower():
-		checktime=True
-		whilecheck2=False
-		
-loccheck=False
-sizecheck=False
-valcheck=False
-if incdonated:
-	print ("Any further restrictions? Please list all now")
-	ffinput=input()
-	if "value" in ffinput.lower():
-		valcheck=True
-		print ("What's the cutoff?")
-		minval=int(input())
-	if "location" in ffinput.lower():
-		loccheck=True
-		print ("What location? Enter river, sea, pond, or pier, or it will return an empty list")
-		loca=input()
-	if "size" in ffinput.lower():
-		sizecheck=True
-		print ("What size? Enter smallest, small, medium, large, x large, or largest, or it will return an empty list")
-		sizein=input()
-			
-		
-	
-	
-if bugcheck:
-	insects_xl=pandas.read_excel('insectlist.xlsx')
-	insects=insects_xl.to_dict('records')
-	print ("\n")
-	titles=["Name","How to catch","Time"]
-	for insect in insects:
-		if "Year" in insect['Months']: insect['Simple Months']=allmonths
-		else: 
-			if "," in insect['Months']:
-				txtstrings=insect['Months'].split(", ")
-				txtstring1=txtstrings[0].split(" ")[0]
-				txtstring2=txtstrings[1].split(" ")[0]
-				insect['Simple Months']=monthscheck(txtstring1)+monthscheck(txtstring2)
-			else:
-				txtstring=insect['Months'].split(" ")[0]
-				insect['Simple Months']=monthscheck(txtstring)
-	shortlisti=list(filter(lambda x:(monthcheck in x['Simple Months']),insects))
-	if not incdonated:
-		shortlisti=list(filter(lambda x:(x["Donated"]!="Yes"),shortlisti))
-	if neworend=="end":
-		indcheck=allmonths.index(monthcheck)
-		shortlisti=list(filter(lambda x:(allmonths[indcheck+1] not in x['Simple Months']),shortlisti))
-	if neworend=="new":
-		indcheck=allmonths.index(monthcheck)
-		shortlisti=list(filter(lambda x:(allmonths[indcheck-1] not in x['Simple Months']),shortlisti))
-	if checktime:
-		shortlisti=list(filter(lambda x:(timecheck(x["Time"])),shortlisti))
-	if valcheck:
-		shortlisti=list(filter(lambda x:(not math.isnan(x['Value'])),shortlisti))
-		shortlisti=list(filter(lambda x:(x['Value']>=minval),shortlisti))
-	print ("Insects:")
-	if shortlisti==[]:print ("None")
-	else:
-		maxn=max(list(map(lambda x:(len(x["Name"])),shortlisti)))
-		listh=list(map(lambda x:(len(x['How to catch'])),shortlisti))
-		listh.append(12)
-		maxh=max(listh)
-		maxt=max(list(map(lambda x:(len(x["Time"])),shortlisti)))
-		print ("Name"+" "*(maxn-4)+"\t"+'How to catch'+" "*(maxh-12)+"\t"+'Time'+" "*(maxt-4)+"\t\t"+"Value")
-		for insect in shortlisti:
-			insect['Name']=insect['Name']+" "*(maxn-len(insect['Name']))
-			insect['How to catch']=insect['How to catch']+" "*(maxh-len(insect['How to catch']))
-			insect['Time']=insect['Time']+" "*(maxt-len(insect['Time']))
-			if not math.isnan(insect['Value']):
-				insect['Value']=math.trunc(insect['Value'])
-			print (insect['Name']+"\t"+insect['How to catch']+"\t"+insect['Time']+"\t\t"+str(insect['Value']))
-	
-if fishcheck:	
-	fishes_xl=pandas.read_excel('Fishlist.xlsx')
-	fishes=fishes_xl.to_dict('records')
-	print ("\n")
-	for fish in fishes:
-		if "Year" in fish['Months']: fish['Simple Months']=allmonths
-		else: 
-			if "," in fish['Months']:
-				txtstrings=fish['Months'].split(", ")
-				txtstring1=txtstrings[0].split(" ")[0]
-				txtstring2=txtstrings[1].split(" ")[0]
-				fish['Simple Months']=monthscheck(txtstring1)+monthscheck(txtstring2)
-			else:
-				txtstring=fish['Months'].split(" ")[0]
-				fish['Simple Months']=monthscheck(txtstring)
-			
-	print ('Fish:')
-	shortlistf=list(filter(lambda x:(monthcheck in x['Simple Months']),fishes))
-	if not incdonated:
-		shortlistf=list(filter(lambda x:(x["Donated"]!="Yes"),shortlistf))
-	if neworend=="end":
-		indcheck=allmonths.index(monthcheck)
-		shortlistf=list(filter(lambda x:(allmonths[indcheck+1] not in x['Simple Months']),shortlistf))
-	if neworend=="new":
-		indcheck=allmonths.index(monthcheck)
-		shortlistf=list(filter(lambda x:(allmonths[indcheck-1] not in x['Simple Months']),shortlistf))
-	if checktime:
-		shortlistf=list(filter(lambda x:(timecheck(x["Time"])),shortlistf))
-	if valcheck:
-		shortlistf=list(filter(lambda x:(not math.isnan(x['Value'])),shortlistf))
-		shortlistf=list(filter(lambda x:(x['Value']>=minval),shortlistf))
-	if loccheck:
-		if "sea" in loca.lower():
-			shortlistf=list(filter(lambda x:(_or_in_(["sea","pier"],x['Location'].lower())),shortlistf))
-		else:shortlistf=list(filter(lambda x:(loca.lower() in x['Location'].lower()),shortlistf))
-	if sizecheck:
-		if "largest" in sizein.lower():
-			shortlistf=list(filter(lambda x:(sizein.lower() in x['Size'].lower()),shortlistf))
-		else: shortlistf=list(filter(lambda x:(sizein.lower()==x['Size'].lower()),shortlistf))
-	if shortlistf==[]:print ("None")
-	else:
-		maxn=max(list(map(lambda x:(len(x["Name"])),shortlistf)))
-		listl=list(map(lambda x:(len(x['Location'])),shortlistf))
-		listl.append(8)
-		maxl=max(listl)
-		maxs=max(list(map(lambda x:(len(x["Size"])),shortlistf)))
-		maxt=max(list(map(lambda x:(len(x["Time"])),shortlistf)))
-		print ("Name"+" "*(maxn-4)+"\t"+'Location'+" "*(maxl-8)+"\t"+"Size"+" "*(maxs-4)+"\t"+'Time'+" "*(maxt-4)+"\t"+"Value")
-		for fish in shortlistf:
-			fish['Name']=fish['Name']+" "*(maxn-len(fish['Name']))
-			fish['Location']=fish['Location']+" "*(maxl-len(fish['Location']))
-			fish['Size']=fish['Size']+" "*(maxs-len(fish['Size']))
-			fish['Time']=fish['Time']+" "*(maxt-len(fish['Time']))
-			print (fish['Name']+"\t"+fish['Location']+"\t"+fish['Size']+"\t"+fish['Time']+"\t"+str(fish['Value']))
+
+if __name__ == "__main__":
+        critterpedia()
