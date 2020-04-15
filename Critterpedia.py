@@ -94,7 +94,7 @@ loccheck=False
 sizecheck=False
 valcheck=False
 if incdonated:
-	print ("Any further restrictions? Please list all now. Options: value, location and/or size for fish")
+	print ("Any further restrictions? Please list all now")
 	ffinput=input()
 	if "value" in ffinput.lower():
 		valcheck=True
