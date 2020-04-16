@@ -13,8 +13,7 @@ def endearly(astring):
 	    if word in astring.lower(): sys.exit()
 	    
 def fixacritter():
-        print ("\nDo you need to fix a bug entry or a fish entry? ")
-        myinp=input()
+        myinp=input("Do you need to fix a bug entry or a fish entry? ")
 
         if _or_in_(["bug","insect"],myinp.lower()):
                 wbkbugs = 'insectlist.xlsx'
@@ -23,8 +22,7 @@ def fixacritter():
                 insects=insects_xl.to_dict('records')
                 bugnamelist=list(map(lambda x:(x['Name']),insects))
                 sheetb=wbkb.worksheets[0]
-                print ("What bug? ")
-                whichbug=input()
+                whichbug=input("What bug? ")
                 endearly(whichbug)
                 keysl=list(insects[0].keys())[1:]
                 if whichbug.title() in bugnamelist:
@@ -32,16 +30,13 @@ def fixacritter():
                 else:
                         bsc=True
                         while bsc:
-                                print ("Sorry, couldn't find that bug. Try a search?")
-                                searchcheck=input()
+                                searchcheck=input("Sorry, couldn't find that bug. Try a search? ")
                                 if "y" in searchcheck.lower():
-                                        print ("Search for what term?")
-                                        bugsearch=input()
+                                        bugsearch=input("Search for what term? ")
                                         endearly(bugsearch)
                                         for buug in bugnamelist:
                                                 if bugsearch.lower() in buug.lower():
-                                                        print ("Is this your bug? "+buug)
-                                                        buugcheck=input()
+                                                        buugcheck=input("Is this your bug? "+buug+" ")
                                                         if "y" in buugcheck.lower():
                                                                 bugnum=bugnamelist.index(buug)+2
                                                                 bsc=False
@@ -49,14 +44,12 @@ def fixacritter():
                                 else: sys.exit()
                 fixwhile=True
                 while fixwhile:
-                        print ("Fix what part of the entry? Options: "+', '.join(keysl))
-                        fixer=input().capitalize()
+                        fixer=input("Fix what part of the entry? Options: "+', '.join(keysl)+" ").capitalize()
                         endearly(fixer)
                         if fixer in keysl:
                                 fixnum=keysl.index(fixer)+2
                                 fixwhile=False
-                print ("This cell currently reads: "+sheetb.cell(row=bugnum,column=fixnum).value+". What should it read instead?")
-                newval=input()
+                newval=input("This cell currently reads: "+str(sheetb.cell(row=bugnum,column=fixnum).value)+". What should it read instead? ")
                 endearly(newval)
                 sheetb.cell(row=bugnum,column=fixnum).value=newval
                 if sheetb.cell(row=bugnum,column=fixnum).value==newval:
@@ -73,8 +66,7 @@ def fixacritter():
                 fish=fish_xl.to_dict('records')
                 fishnamelist=list(map(lambda x:(x['Name']),fish))
                 sheetf=wbkf.worksheets[0]
-                print ("What fish? ")
-                whichfish=input()
+                whichfish=input("What fish? ")
                 endearly(whichfish)
                 keysl=list(fish[0].keys())[1:]
                 if whichfish.title() in fishnamelist:
@@ -82,16 +74,13 @@ def fixacritter():
                 else:
                         fsc=True
                         while fsc:
-                                print ("Sorry, couldn't find that fish. Try a search?")
-                                searchcheck=input()
+                                searchcheck=input("Sorry, couldn't find that fish. Try a search? ")
                                 if "y" in searchcheck.lower():
-                                        print ("Search for what term?")
-                                        fishsearch=input()
+                                        fishsearch=input("Search for what term? ")
                                         endearly(fishsearch)
                                         for fysh in fishnamelist:
                                                 if fishsearch.lower() in fysh.lower():
-                                                        print ("Is this your fish? "+fysh)
-                                                        fyshcheck=input()
+                                                        fyshcheck=input("Is this your fish? "+fysh+" ")
                                                         if "y" in fyshcheck.lower():
                                                                 fishnum=fishnamelist.index(fysh)+2
                                                                 fsc=False
@@ -99,15 +88,13 @@ def fixacritter():
                                 else: sys.exit()
                 fixwhile=True
                 while fixwhile:
-                        print ("Fix what part of the entry? Options: "+', '.join(keysl))
-                        fixer=input().capitalize()
+                        fixer=input("Fix what part of the entry? Options: "+', '.join(keysl)+" ").capitalize()
                         endearly(fixer)
                         if fixer in keysl:
                             fixnum=keysl.index(fixer)+2
                             fixwhile=False
                                 
-                print ("This cell currently reads: "+sheetf.cell(row=fishnum,column=fixnum).value+". What should it read instead?")
-                newval=input()
+                newval=input("This cell currently reads: "+str(sheetf.cell(row=fishnum,column=fixnum).value)+". What should it read instead? ")
                 endearly(newval)
                 sheetf.cell(row=fishnum,column=fixnum).value=newval
                 if sheetf.cell(row=fishnum,column=fixnum).value==newval:

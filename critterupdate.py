@@ -31,8 +31,7 @@ def critterupdate():
         contsearch=True #Will continue to search until user declines to continue
         while contsearch:
 
-                print ("What critter? ")
-                whichcrit=input()
+                whichcrit=input("What critter? ")
                 bugnum=0
                 fishnum=0
                 if whichcrit.title() in bugnamelist:
@@ -42,22 +41,19 @@ def critterupdate():
                         fishnum=fishnamelist.index(whichcrit.title())+2
 
                 else:
-                        print ("Is it a fish or a bug? ")
-                        myinp=input()
+                        myinp=input("Is it a fish or a bug? ")
                         if _or_in_(["bug","insect"],myinp):
                                 
                                 for bug in bugnamelist:
                                         if whichcrit.lower() in bug.lower():
-                                                print ("Is this your bug? "+bug)
-                                                check=input()
+                                                check=input("Is this your bug? "+bug+" ")
                                                 if "y" in check.lower():
                                                         bugnum=bugnamelist.index(bug)+2
                                                         break
                         elif "fish" in myinp:
                                 for fish in fishnamelist:
                                         if whichcrit.lower() in fish.lower():
-                                                print ("Is this your fish? "+fish)
-                                                check=input()
+                                                check=input("Is this your fish? "+fish+' ')
                                                 if "y" in check.lower():
                                                         fishnum=fishnamelist.index(fish)+2
                                                         break
@@ -78,15 +74,13 @@ def critterupdate():
                                         print ("Successfully added")
                 
                 else:
-                        print ("Sorry couldn't find that critter. Look for a different term? ")
-                        searchcheck=input()
+                        searchcheck=input("Sorry couldn't find that critter. Look for a different term? ")
                         alreadyasked=True
                         if "y" not in searchcheck.lower():
                                 contsearch=False
                 if not alreadyasked:
                         
-                        print ("Add another? ")
-                        searchcheck=input()
+                        searchcheck=input("Add another? ")
                         if "y" not in searchcheck.lower():
                                 contsearch=False
 
