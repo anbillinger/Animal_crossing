@@ -1,98 +1,63 @@
-import pandas
-import openpyxl
+import pandas as pd
 
-def _or_in_(alist,astring):
-	#function to determine if any words in a list (alist)
-	#are present anywhere in a string (astring)
-	
-	for word in alist:
-		if word.lower() in astring.lower():
-			return True
-	return False
-def critterupdate():
-        wbkbugs = 'insectlist.xlsx'
-        wbkb = openpyxl.load_workbook(wbkbugs)
-        insects_xl=pandas.read_excel(wbkbugs)
-        insects=insects_xl.to_dict('records')
-        bugnamelist=list(map(lambda x:(x['Name']),insects))
-        sheetb=wbkb.worksheets[0]
+def main():
+	csv_names = ['FishList.csv','InsectList.csv']
+	df_list = [pd.read_csv(csv_names[0]),pd.read_csv(csv_names[1])]
+	if type(df_list[0]['Donated'][0]) != str:df_list[0]['Donated'] = df_list[0]['Donated'].astype(str)
+	if type(df_list[1]['Donated'][0]) != str:df_list[1]['Donated'] = df_list[1]['Donated'].astype(str)
 
-        wbkfish = 'Fishlist.xlsx'
-        wbkf = openpyxl.load_workbook(wbkfish)
-        fish_xl=pandas.read_excel(wbkfish)
-        fish=fish_xl.to_dict('records')
-        fishnamelist=list(map(lambda x:(x['Name']),fish))
-        sheetf=wbkf.worksheets[0]
+	to_add = input('Enter all critter names to add, separated by commas. Any unrecognized names will prompt a search.\n')
+	lst_crit = list(map(lambda x: x.strip(),to_add.split(',')))
+	for crit in lst_crit:
+		crit_ind = "blank"
+		df_ind = None
+		for ind,df in enumerate(df_list):
+			if crit.title() in list(df['Name']):
+				crit_ind = df.loc[df['Name'] == crit.title()].index[0]
+				df_ind = ind
+				break
+		while crit_ind == 'blank':
+			
+			    
+			print('\nCould not find {}. Starting search. Enter "cancel" at any time to go to next critter in list.'.format(crit.title()))
+			which = input('Is it a bug or a fish?\n')
+			if 'cancel' in which.lower(): break
+			keyword = input('Search for what keyword?\n')
+			if 'cancel' in keyword.lower(): break
+			if 'fish' in which.lower():
+				crit_type = 'fish'
+				df_ind = 0
+			elif ('bug' in which.lower()) or ('insect' in which.lower()):
+				df_ind = 1
+				crit_type = 'bug'
+			
+			      
+			for ind,x in enumerate(df_list[df_ind]['Name']):
+				if keyword.lower() in x.lower():
+					found = input('Is {} the {} you were looking for? '.format(x,crit_type))
+					if 'cancel' in found.lower():
+						break
+					if 'y' in found.lower():
+						crit_ind = ind
+						break
+			if not crit_ind:
+				crit = keyword
+				continue
+			
 
+		
+		if crit_ind != 'blank':
+			if (df_list[df_ind].iloc[crit_ind]['Donated']) == 'Yes':
+				print('{} already listed as donated.'.format(crit.title()))
+			else:
+				df_list[df_ind].at[crit_ind,'Donated'] = 'Yes'
+				print('Successfully added {} to donated list.'.format(crit.title()))
 
-
-
-                
-        contsearch=True #Will continue to search until user declines to continue
-        while contsearch:
-
-                whichcrit=input("What critter? ")
-                bugnum=0
-                fishnum=0
-                if whichcrit.title() in bugnamelist:
-                        bugnum=bugnamelist.index(whichcrit.title())+2
-
-                elif whichcrit.title() in fishnamelist:
-                        fishnum=fishnamelist.index(whichcrit.title())+2
-
-                else:
-                        myinp=input("Is it a fish or a bug? ")
-                        if _or_in_(["bug","insect"],myinp):
-                                
-                                for bug in bugnamelist:
-                                        if whichcrit.lower() in bug.lower():
-                                                check=input("Is this your bug? "+bug+" ")
-                                                if "y" in check.lower():
-                                                        bugnum=bugnamelist.index(bug)+2
-                                                        break
-                        elif "fish" in myinp:
-                                for fish in fishnamelist:
-                                        if whichcrit.lower() in fish.lower():
-                                                check=input("Is this your fish? "+fish+' ')
-                                                if "y" in check.lower():
-                                                        fishnum=fishnamelist.index(fish)+2
-                                                        break
-                alreadyasked=False
-                if bugnum:
-                        if sheetb.cell(row=bugnum,column=7).value=="Yes":
-                                print ("Already in spreadsheet as donated.")
-                        else:
-                                sheetb.cell(row=bugnum,column=7).value="Yes"
-                                if sheetb.cell(row=bugnum,column=7).value=="Yes":
-                                        print ("Successfully added")
-                elif fishnum:
-                        if sheetf.cell(row=fishnum,column=8).value=="Yes":
-                                print ("Already in spreadsheet as donated.")
-                        else:
-                                sheetf.cell(row=fishnum,column=8).value="Yes"
-                                if sheetf.cell(row=fishnum,column=8).value=="Yes":
-                                        print ("Successfully added")
-                
-                else:
-                        searchcheck=input("Sorry couldn't find that critter. Look for a different term? ")
-                        alreadyasked=True
-                        if "y" not in searchcheck.lower():
-                                contsearch=False
-                if not alreadyasked:
-                        
-                        searchcheck=input("Add another? ")
-                        if "y" not in searchcheck.lower():
-                                contsearch=False
-
-                                        
-                        
+	for ind, df in enumerate(df_list):
+	    df.to_csv(csv_names[ind],index=False)
+	print("\nEnd of list, csv files updated and saved.")
 
 
-        wbkb.save(wbkbugs)
-        wbkb.close
-
-        wbkf.save(wbkfish)
-        wbkf.close
 
 if __name__ == "__main__":
-        critterupdate()
+	main()
